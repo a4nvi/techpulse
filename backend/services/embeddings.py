@@ -1,3 +1,9 @@
+# We load the model once at import time (_model = SentenceTransformer(...)), not inside the function. Loading it is slow (~1-2 sec); if we reloaded it on every call, everything would crawl. This way it loads once when the server starts, then stays in memory.
+
+# all-MiniLM-L6-v2 outputs a 384-number vector per piece of text. Two texts about similar topics will have vectors that point in similar directions — that's what cosine similarity (Step 7) will measure.
+
+# get_embeddings_batch exists because we'll typically have 10+ articles at once — batching is meaningfully faster than one-by-one.
+
 from sentence_transformers import SentenceTransformer
 model= SentenceTransformer('all-MiniLM-L6-v2')        #stored in cache
 # this is like hiring an expert translator
