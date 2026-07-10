@@ -1,25 +1,27 @@
 import os
 import requests  #library to make HTTP requests to external APIs.
 from dotenv import load_dotenv  #library to load environment variables from a .env file.
-
-load_dotenv()  #load environment variables from the .env file.
+from pathlib import Path
+env_path = Path(__file__).resolve().parent.parent / ".env"
+load_dotenv(dotenv_path=env_path)
 
 #without above two statements python cannot read the api key in .env file
 
 GNEWS_API_KEY = os.getenv("GNEWS_API_KEY")
-GNEWS_BASE_URL = "https://gnews.io/api/v4/search"     #simply storing the API endpoint.
+GNEWS_BASE_URL = "https://gnews.io/api/v4/top-headlines"
+    #simply storing the API endpoint.
 
-def fetch_tech_news(query: str="technology", max_articles: int=10) ->list[dict]:
+def fetch_tech_news(max_articles: int = 10) -> list[dict]:
     """
-    Fetch tech news articles from GNews.
+    Fetch tech news articles from GNews's technology category (editorially
+    curated by GNews, not just keyword-matched — much more reliably on-topic).
     Returns a list of simplified article dicts: title, description, url, published_at, source.
     """
-    #help(fetch_tech_news) they will see above explanation
-    if not GNEWS_API_KEY:                     #if api key not found
+    if not GNEWS_API_KEY:
         raise ValueError("GNEWS_API_KEY is not set. Please check your .env file.")
 
     params = {
-        "q": query,
+        "category": "technology",
         "lang": "en",
         "max": max_articles,
         "apikey": GNEWS_API_KEY,
@@ -32,7 +34,8 @@ def fetch_tech_news(query: str="technology", max_articles: int=10) ->list[dict]:
     #&max=5
     #&apikey=abc123
 
-    response = requests.get(GNEWS_BASE_URL, params=params)  #make a GET request to the GNews API with the specified parameters.
+    response = requests.get(GNEWS_BASE_URL, params=params)
+    #make a GET request to the GNews API with the specified parameters.
     #Please give me
     #AI news
     #English
@@ -56,7 +59,8 @@ def fetch_tech_news(query: str="technology", max_articles: int=10) ->list[dict]:
         for a in articles
     ]
 
-    if __name__ == "__main__":
-      articles = fetch_tech_news()
-      for a in articles:
+
+if __name__ == "__main__":
+    articles = fetch_tech_news()
+    for a in articles:
         print(a["title"], "-", a["source"])
