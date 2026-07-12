@@ -35,7 +35,8 @@ def cluster_articles(articles: list[dict], threshold=0.75) -> list[list[dict]]:
 
     clusters: list[list[int]] = []  # Each cluster is a list of article indices ( stores article INDEXES per cluster)
 
-    cluster_embeddings : list[list[float]] = []  # Each cluster's representative embedding (the first article's embedding in that cluster)
+    # cluster_embeddings : list[list[float]] = []  # Each cluster's representative embedding (the first article's embedding in that cluster)
+    cluster_embeddings: list[np.ndarray] = []  # now stores the running centroid, not just the first embedding
 
     # clusters = [
     # [0, 3],   # Apple-related articles
@@ -50,11 +51,15 @@ def cluster_articles(articles: list[dict], threshold=0.75) -> list[list[dict]]:
     # ]
 
     for i, emb in enumerate(embeddings):
+        emb_arr = np.array(emb)
         placed = False
         for c_idx, c_emb in enumerate(cluster_embeddings):
             similarity = cosine_similarity(emb, c_emb)
             if similarity >= threshold:
                 clusters[c_idx].append(i)
+                # Recompute centroid: average of all article embeddings now in this cluster
+                member_embeddings = [np.array(embeddings[idx]) for idx in clusters[c_idx]]
+                cluster_embeddings[c_idx] = np.mean(member_embeddings, axis=0)
                 placed = True
                 break
         if not placed:

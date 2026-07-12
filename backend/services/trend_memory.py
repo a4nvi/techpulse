@@ -5,6 +5,7 @@
 # store_trend is what gets called after we generate a trend's LLM summary (Step 9, coming later) — for now we can test it directly with plain text.
 
 import json
+import uuid
 from pathlib import Path
 from services.embeddings import get_embedding
 from services.clustering import cosine_similarity
@@ -49,31 +50,40 @@ def find_similar_past_trend(cluster_summary: str, threshold: float = 0.50) -> di
             best_match = past_trend
 
     if best_match and best_score >= threshold:
-        return {"summary": best_match["summary"], "date": best_match["date"], "similarity": round(best_score, 3)}
-    print(f"DEBUG best_score={best_score:.3f} (threshold={threshold})")
+        return {"trend_id": best_match["trend_id"], "summary": best_match["summary"], "date": best_match["date"], "similarity": round(best_score, 3)}
     return None
 
 
-def store_trend(cluster_summary: str, date: str) -> None:
+def store_trend(cluster_summary: str, date: str, trend_id: str | None = None) -> str:
     """
-    Save a new trend cluster's summary + embedding + date into memory,
-    so future trends can be compared against it.
+    Save a new trend cluster's summary + embedding + date into memory, so
+    future trends can be compared against it. If trend_id isn't provided,
+    generates a new one. Returns the trend_id used (new or passed-in), so the
+    caller can key momentum tracking off the same ID.
     """
     memory = _load_memory()
+
+    if trend_id is None:
+        trend_id = str(uuid.uuid4())
+
     memory.append({
+        "trend_id": trend_id,
         "summary": cluster_summary,
         "date": date,
         "embedding": get_embedding(cluster_summary),
     })
     _save_memory(memory)
+    return trend_id
+
 
 if __name__ == "__main__":
     from datetime import date
 
     # Simulate storing a past trend
-    store_trend("OpenAI launches GPT-4 with major reasoning improvements", str(date.today()))
+    tid = store_trend("OpenAI launches GPT-4 with major reasoning improvements", str(date.today()))
+    print("Stored with trend_id:", tid)
 
-    # Now search for something similar
+    # Now search for something similar — should return the same trend_id
     result = find_similar_past_trend("OpenAI releases a new advanced AI model")
     print("Match found:", result)
 
