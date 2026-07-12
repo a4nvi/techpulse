@@ -65,6 +65,7 @@ def fetch_tech_news(max_articles: int = 10, query: str = DEFAULT_QUERY) -> list[
             "url": a["url"],
             "published_at": a["publishedAt"],
             "source": a["source"]["name"],
+            "image": a.get("image"),  # GNews returns an image URL per article; may be None for some sources
         }
         for a in articles
     ]
