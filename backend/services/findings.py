@@ -20,7 +20,7 @@ ARXIV_NAMESPACE = "{http://www.w3.org/2005/Atom}"
 # AI/CS categories per arXiv's classification scheme
 ARXIV_CATEGORIES = "cat:cs.AI OR cat:cs.LG OR cat:cs.CL"
 
-INDUSTRY_KEYWORDS_QUERY = "(launch OR launches OR introduces OR breakthrough OR unveils OR announces) AND (tech OR AI OR software OR startup OR chip)"
+INDUSTRY_KEYWORDS_QUERY = "(launch OR launches OR unveils OR announces OR debuts) AND (AI OR software OR startup OR chip OR company)"
 
 # Titles containing these are almost never genuine product/industry announcements —
 # they're sales posts, opinion pieces, or listicles that happen to contain our
