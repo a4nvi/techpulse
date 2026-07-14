@@ -91,11 +91,12 @@ Respond with ONLY a JSON object (no markdown fences, no preamble) in this exact 
         retry_text = retry_response.choices[0].message.content.strip()
         retry_cleaned = _repair_json(retry_text.replace("```json", "").replace("```", "").strip())
         try:
-            parsed = json.loads(retry_cleaned)
+           parsed = json.loads(retry_cleaned)
         except json.JSONDecodeError:
             parsed = {
                 "summary": "Summary unavailable due to a parsing error.",
                 "why_it_matters": "Unable to generate at this time.",
+                "failed": True,
             }
     return {
         "summary": parsed.get("summary", ""),
@@ -105,6 +106,7 @@ Respond with ONLY a JSON object (no markdown fences, no preamble) in this exact 
             {"title": a["title"], "url": a["url"], "source": a["source"]}
             for a in cluster
         ],
+        "failed": parsed.get("failed", False),
     }
 
 
